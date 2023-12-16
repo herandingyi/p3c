@@ -73,6 +73,9 @@ public class AbstractMethodOrInterfaceMethodMustUseJavadocRule extends AbstractA
         if (!decl.isInterface()) {
             return super.visit(decl, data);
         }
+        if (decl.getSimpleName().endsWith("Mapper")) {
+            return super.visit(decl, data);
+        }
         List<Node> methodNodes;
         try {
             methodNodes = decl.findChildNodesWithXPath(METHOD_IN_INTERFACE_XPATH);
