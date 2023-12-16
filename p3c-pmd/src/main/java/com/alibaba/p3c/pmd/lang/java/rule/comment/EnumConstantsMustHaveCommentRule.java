@@ -38,43 +38,6 @@ public class EnumConstantsMustHaveCommentRule extends AbstractAliCommentRule {
 
     @Override
     public Object visit(ASTCompilationUnit cUnit, Object data) {
-        SortedMap<Integer, Node> itemsByLineNumber = this.orderedCommentsAndEnumDeclarations(cUnit);
-
-        // Check comments between ASTEnumDeclaration and ASTEnumConstant.
-        boolean isPreviousEnumDecl = false;
-
-        for (Entry<Integer, Node> entry : itemsByLineNumber.entrySet()) {
-            Node value = entry.getValue();
-
-            if (value instanceof ASTEnumDeclaration) {
-                isPreviousEnumDecl = true;
-            } else if (value instanceof ASTEnumConstant && isPreviousEnumDecl) {
-                Node enumBody = value.jjtGetParent();
-                Node enumDeclaration = enumBody.jjtGetParent();
-                addViolationWithMessage(data, enumBody,
-                    I18nResources.getMessage("java.comment.EnumConstantsMustHaveCommentRule.violation.msg",
-                        enumDeclaration.getImage()));
-                isPreviousEnumDecl = false;
-            } else {
-                isPreviousEnumDecl = false;
-            }
-        }
-
         return super.visit(cUnit, data);
     }
-
-    private SortedMap<Integer, Node> orderedCommentsAndEnumDeclarations(ASTCompilationUnit cUnit) {
-        SortedMap<Integer, Node> itemsByLineNumber = new TreeMap<>();
-
-        List<ASTEnumDeclaration> enumDecl = cUnit.findDescendantsOfType(ASTEnumDeclaration.class);
-        NodeSortUtils.addNodesToSortedMap(itemsByLineNumber, enumDecl);
-
-        List<ASTEnumConstant> contantDecl = cUnit.findDescendantsOfType(ASTEnumConstant.class);
-        NodeSortUtils.addNodesToSortedMap(itemsByLineNumber, contantDecl);
-
-        NodeSortUtils.addNodesToSortedMap(itemsByLineNumber, cUnit.getComments());
-
-        return itemsByLineNumber;
-    }
-
 }
